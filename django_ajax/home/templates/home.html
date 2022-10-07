@@ -1,0 +1,101 @@
+
+<html>
+<head>
+<title>Home</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+ 
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script
+  src="https://code.jquery.com/jquery-2.2.4.js"
+  integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI="
+  crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="container mt-3 w-50">
+     <h2>Ajax With Django</h2>
+     <hr>
+   <h3 id="success_msg"></h3>
+    <form class="container mt-3" id="post_form">
+    {% csrf_token %}
+  <div class="form-group" id="post_form">
+    <label for="exampleInputEmail1">Username</label>
+    <input type="text" class="form-control" id="username" name="username" aria-describedby="emailHelp" placeholder="Enter Username">
+    
+  </div>
+  <div class="form-group">
+    <label for="exampleInputPassword1">Password</label>
+    <input type="password" class="form-control"  id="password" name="password" placeholder="Enter Password">
+  </div>
+ 
+  <button  id="btn_submit" type="button" class="btn btn-primary">Submit</button>
+  <button  id="btn_submit_auto_click_all_users_btn" class="mt-2" type="button" class="btn btn-secondary">Submit Show Users</button>
+
+</form>
+
+<button id="load_users" type="button" class="btn btn-success">Users</button>
+<ul id="users">
+
+</ul>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js" integrity="sha512-odNmoc1XJy5x1TMVMdC7EMs3IVdItLPlCeL5vSUPN2llYKMJ2eByTTAIiiuqLg+GdNr9hF6z81p27DArRFKT7A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script type="text/javascript" >
+ 
+  $("#btn_submit").click(function(e){
+    e.preventDefault(); //this prevent from reloading page
+let uname = $("#username").val();
+let upass = $("#password").val();
+mydata={username:uname,password:upass,csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()};
+$.ajax({
+  method: "POST",
+  url: "/",
+  data: mydata,
+  success: function(data){
+    $("h3").html(data);
+
+      },
+      });
+      });
+//Loading All users through ajax call
+let loadbtn=document.getElementById("load_users");
+let users=document.getElementById("users");
+loadbtn.addEventListener("click",function(){
+  axios.get('/all-users').then(function(resp){
+    users.innerHTML = resp.data;
+}).catch(function(error){
+  console.log(error.message);
+})
+
+});
+
+//submiting data using avios
+var form =document.getElementById("post_form");
+// var btn_auto_user =document.getElementById("btn_submit_auto_click_all_users_btn");
+form.addEventListener("click",function(e){
+  e.preventDefault();
+  var fd = new FormData()
+  fd.append("username", document.getElementById("username").value)
+  fd.append("password", document.getElementById("password").value)
+  fd.append("csrfmiddlewaretoken", "{{csrf_token}}")
+ axios.post("/",fd).then(function(response) {
+  console.log(response.data);
+  //when get json respnse response from backed 
+  // if (response.data.success=== "success") {
+  // loadbtn.click()}
+  loadbtn.click() //after submiting loadbtn will automatically clicked
+  form.reset() //reset form after submitting data
+
+
+ }
+ ).catch(function(error) {
+  console.log(error);
+ })
+})
+
+</script>
+
+ 
+
+ 
+ 
+</body>
+</html>
